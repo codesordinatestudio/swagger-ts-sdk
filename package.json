@@ -1,6 +1,6 @@
 {
   "name": "swagger-ts-sdk",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": "codesordinate studio",
   "license": "MIT",
   "type": "module",
@@ -8,6 +8,7 @@
   "types": "dist/index.d.ts",
   "module": "dist/index.js",
   "scripts": {
+    "test": "bun test",
     "tsc": "tsup --watch",
     "server": "bun run --watch src/example/server-test.ts",
     "dev": "concurrently \"bun server\" \"bun tsc\"",

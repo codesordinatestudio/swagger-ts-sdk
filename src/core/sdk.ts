@@ -80,7 +80,7 @@ export const SdkClient = class<T extends object> {
               const method = nestedTarget[nestedProp as keyof typeof nestedTarget];
 
               if (typeof method === "function") {
-                return async (...args: any[]) => {
+                return function (...args: any[]) {
                   // Create AbortController for timeout and manual abort
                   const abortController = new AbortController();
                   let abortFn = abortController.abort.bind(abortController);
@@ -93,56 +93,60 @@ export const SdkClient = class<T extends object> {
                     }, timeout);
                   }
 
-                  try {
-                    // Create a unique cancelToken for this request
-                    const cancelToken = Symbol("request-cancel");
+                  const requestPromise = (async () => {
+                    try {
+                      // Pass the signal via the request params
+                      const requestParams = args[0] || {};
+                      const paramsWithSignal = {
+                        ...requestParams,
+                        signal: abortController.signal,
+                      };
 
-                    // Pass the signal via the request params
-                    const requestParams = args[0] || {};
-                    const paramsWithSignal = {
-                      ...requestParams,
-                      signal: abortController.signal,
-                    };
+                      const response = await (method as any).apply(nestedTarget, [paramsWithSignal]);
 
-                    const response = await (method as any).apply(nestedTarget, [paramsWithSignal]);
+                      // Clear timeout if request completed
+                      if (timeoutId) {
+                        clearTimeout(timeoutId);
+                      }
 
-                    // Clear timeout if request completed
-                    if (timeoutId) {
-                      clearTimeout(timeoutId);
-                    }
+                      return {
+                        data: response.data,
+                        error: null,
+                        status: response.status,
+                        abort: abortFn,
+                      };
+                    } catch (err: any) {
+                      // Clear timeout if request failed
+                      if (timeoutId) {
+                        clearTimeout(timeoutId);
+                      }
 
-                    return {
-                      data: response.data,
-                      error: null,
-                      status: response.status,
-                      abort: abortFn,
-                    };
-                  } catch (err: any) {
-                    // Clear timeout if request failed
-                    if (timeoutId) {
-                      clearTimeout(timeoutId);
-                    }
+                      // Check if this was an abort error
+                      if (err?.name === "AbortError" || err?.message?.includes("aborted")) {
+                        return {
+                          data: null,
+                          error: "Request aborted",
+                          status: 0,
+                          abort: abortFn,
+                        };
+                      }
 
-                    // Check if this was an abort error
-                    if (err?.name === "AbortError" || err?.message?.includes("aborted")) {
+                      if (onRequestError) {
+                        onRequestError(err);
+                      }
                       return {
                         data: null,
-                        error: "Request aborted",
-                        status: 0,
+                        error: err?.error?.message || err?.message || "Request failed",
+                        status: err?.status || null,
                         abort: abortFn,
                       };
                     }
+                  })();
 
-                    if (onRequestError) {
-                      onRequestError(err);
-                    }
-                    return {
-                      data: null,
-                      error: err?.error?.message || err?.message || "Request failed",
-                      status: err?.status || null,
-                      abort: abortFn,
-                    };
-                  }
+                  // Attach abort function to the promise itself for early access
+                  (requestPromise as any).abort = abortFn;
+
+                  return requestPromise;
                 };
               }
               return method;
