@@ -13,7 +13,7 @@
     "server": "bun run --watch src/example/server-test.ts",
     "dev": "concurrently \"bun server\" \"bun tsc\"",
     "package": "tsup",
-    "publish-package": " npm publish"
+    "publish-package": "bun test && bun package && npm publish"
   },
   "repository": {
     "type": "git",
