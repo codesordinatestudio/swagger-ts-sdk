@@ -1,0 +1,5 @@
+__test__
+src
+tsup.config.ts
+.npmrc
+node_modules

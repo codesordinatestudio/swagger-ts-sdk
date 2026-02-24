@@ -1,0 +1,39 @@
+{
+  "name": "swagger-ts-sdk",
+  "version": "0.0.1",
+  "author": "codesordinate studio",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "module": "dist/index.js",
+  "scripts": {
+    "tsc": "tsup --watch",
+    "server": "bun run --watch src/example/server-test.ts",
+    "dev": "concurrently \"bun server\" \"bun tsc\"",
+    "package": "tsup",
+    "publish-package": " npm publish"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/codesordinatestudio/lucent.git"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "devDependencies": {
+    "@sinclair/typebox": "^0.34.48",
+    "concurrently": "^9.2.1",
+    "swagger-typescript-api": "^13.2.18"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "dependencies": {
+    "@codesordinatestudio/lucent": "^1.1.15"
+  }
+}
