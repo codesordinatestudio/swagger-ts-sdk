@@ -3,8 +3,14 @@ import { Api } from "./sample_schema";
 
 const client = new SdkClient(Api, {
   baseUrl: "http://localhost:3000",
+  token: () => {
+    if (typeof localStorage !== "undefined") {
+      return localStorage.getItem("authToken");
+    }
+    return null;
+  },
   onRequestError: (error) => {
-    console.error("Request error:", error);
+    console.error("Request error:", error.status);
   },
 });
 

@@ -1,4 +1,4 @@
-import { builder, ServerInit, ServerUtils, t } from "@codesordinatestudio/lucent";
+import { builder, LucentError, ServerInit, ServerUtils, t } from "@codesordinatestudio/lucent";
 
 builder.register({
   path: "/greetings",
@@ -7,6 +7,7 @@ builder.register({
     message: t.String(),
   }),
   handler: async () => {
+    throw new LucentError.ForbiddenError("Something went wrong");
     return { message: "Hello, world!" };
   },
 });
