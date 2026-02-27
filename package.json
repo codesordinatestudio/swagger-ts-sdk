@@ -1,6 +1,6 @@
 {
   "name": "swagger-ts-sdk",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "author": "codesordinate studio",
   "license": "MIT",
   "type": "module",
@@ -33,8 +33,5 @@
   "files": [
     "dist",
     "README.md"
-  ],
-  "dependencies": {
-    "@codesordinatestudio/lucent": "^1.1.15"
-  }
+  ]
 }
